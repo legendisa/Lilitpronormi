@@ -1,0 +1,2 @@
+# Lilitpronormi
+Lilit otonom zeka
