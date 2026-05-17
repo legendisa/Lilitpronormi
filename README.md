@@ -1,7 +1,7 @@
 
 # 🦇 LILITH - Otonom Yapay Zeka
 
-49 özellikli yapay zeka asistanı.
+70 özellikli yapay zeka asistanı.
 
 ## Özellikler
 - Sadece senin sesin
