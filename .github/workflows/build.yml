@@ -20,11 +20,16 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
       
+      - name: Create dummy keystore
+        run: |
+          keytool -genkey -v -keystore debug.keystore -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug, O=Android, C=US" -storepass android -keypass android
+      
       - name: Build APK
         run: |
-          echo "APK build hazırlanıyor..."
-          mkdir -p app/build/outputs/apk/release/
-          echo "Lilith APK" > app/build/outputs/apk/release/lilith.apk
+          echo "android.useAndroidX=true" >> gradle.properties
+          echo "android.enableJetifier=true" >> gradle.properties
+          chmod +x gradlew
+          ./gradlew assembleRelease
       
       - name: Upload APK
         uses: actions/upload-artifact@v4
