@@ -1,0 +1,3 @@
+-dontwarn java.lang.**
+-dontwarn org.python.**
+-keep class com.chaquo.python.** { *; }
