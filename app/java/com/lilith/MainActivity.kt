@@ -3,17 +3,16 @@ package com.lilith.agent
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.chaquo.python.PyObject
 import com.chaquo.python.Python
 import com.chaquo.python.android.AndroidPlatform
 import kotlinx.coroutines.*
@@ -26,7 +25,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var voiceButton: Button
     private lateinit var accessibilityButton: Button
     
-    private lateinit var lilithCore: PythonObject
+    private lateinit var lilithCore: PyObject
     private val mainScope = CoroutineScope(Dispatchers.Main + Job())
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,14 +65,20 @@ class MainActivity : AppCompatActivity() {
     private fun checkPermissions() {
         val permissions = mutableListOf<String>()
         
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
-            != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             permissions.add(Manifest.permission.RECORD_AUDIO)
         }
-        
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED) {
+            permissions.add(Manifest.permission.READ_SMS)
+        }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
+            permissions.add(Manifest.permission.SEND_SMS)
+        }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+            permissions.add(Manifest.permission.CALL_PHONE)
         }
         
         if (permissions.isNotEmpty()) {
@@ -83,14 +88,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun checkAccessibilityPermission() {
         val service = android.content.ComponentName(this, LilithAccessibilityService::class.java)
-        val enabledServices = Settings.Secure.getString(
-            contentResolver,
-            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
-        )
-        if (!enabledServices?.contains(service.flattenToString()) == true) {
+        val enabledServices = Settings.Secure.getString(contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES)
+        if (enabledServices == null || !enabledServices.contains(service.flattenToString())) {
             AlertDialog.Builder(this)
                 .setTitle("Erişilebilirlik İzni Gerekli")
-                .setMessage("Lilith'in ekranı okuması ve kontrol etmesi için erişilebilirlik iznini verin.")
+                .setMessage("Lilith'in ekranı okuyabilmesi ve otonom kontrol edebilmesi için erişilebilirlik iznini verin.")
                 .setPositiveButton("Ayarlara Git") { _, _ ->
                     startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
                 }
@@ -108,7 +110,7 @@ class MainActivity : AppCompatActivity() {
         val module = py.getModule("lilith_core")
         lilithCore = module.callAttr("LilithCore", this)
         
-        addToConsole("🦇 Lilith başlatıldı. 49 özellik aktif.")
+        addToConsole("🦇 Lilith Intelligence OS başlatıldı. Sistem tetikleyicileri hazır.")
     }
 
     private fun processCommand(command: String) {
@@ -119,30 +121,21 @@ class MainActivity : AppCompatActivity() {
                 lilithCore.callAttr("process_command", command).toString()
             }
             addToConsole("🦇 Lilith: $response")
-            speakResponse(response)
         }
     }
 
     private fun startVoiceRecognition() {
-        addToConsole("🎤 Dinliyorum...")
-        
+        addToConsole("🎤 Dinleniyor...")
         mainScope.launch {
             val recognizedText = withContext(Dispatchers.IO) {
                 lilithCore.callAttr("listen_to_me").toString()
             }
-            
             if (recognizedText.isNotBlank()) {
                 processCommand(recognizedText)
             } else {
-                addToConsole("⚠️ Anlaşılmadı.")
+                addToConsole("⚠️ Ses algılanamadı veya imza uyuşmadı.")
             }
         }
-    }
-
-    private fun speakResponse(text: String) {
-        try {
-            lilithCore.callAttr("speak", text)
-        } catch (e: Exception) { }
     }
 
     private fun addToConsole(message: String) {
