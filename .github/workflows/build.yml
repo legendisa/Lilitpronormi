@@ -8,39 +8,25 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    
-    - name: Set up JDK 17
-      uses: actions/setup-java@v3
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-    
-    - name: Setup Android SDK
-      uses: android-actions/setup-android@v3
-    
-    - name: Create gradle wrapper files
-      run: |
-        mkdir -p gradle/wrapper
-        echo "distributionUrl=https\://services.gradle.org/distributions/gradle-8.0-bin.zip" > gradle/wrapper/gradle-wrapper.properties
-        curl -sS -o gradle/wrapper/gradle-wrapper.jar https://raw.githubusercontent.com/gradle/gradle/v8.0.0/gradle/wrapper/gradle-wrapper.jar
-    
-    - name: Create gradlew script
-      run: |
-        cat > gradlew << 'EOF'
-        #!/bin/sh
-        exec java -cp gradle/wrapper/gradle-wrapper.jar org.gradle.wrapper.GradleWrapperMain "$@"
-        EOF
-        chmod +x gradlew
-    
-    - name: Build APK
-      run: ./gradlew assembleDebug --no-daemon
-    
-    - name: Upload APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: Lilith-APK
-        path: app/build/outputs/apk/debug/*.apk
+      - uses: actions/checkout@v4
+      
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      
+      - name: Build APK with Clean Config
+        run: |
+          # 1. build.gradle içindeki çakışan tüm repository tanımlarını (google, mavenCentral) temizle
+          find . -name "build.gradle" -exec sed -i '/repositories {/,/}/d' {} +
+          
+          # 2. Gradle'ı settings.gradle üzerinden çalıştır ve projedeki bozuk ayarları bypass et
+          gradle assembleDebug --no-daemon --stacktrace
+      
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Lilith-APK
+          path: app/build/outputs/apk/debug/*.apk
