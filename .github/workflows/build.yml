@@ -17,12 +17,13 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
       
-      - name: Build APK with Clean Config
+      - name: Fix and Build
         run: |
-          # 1. build.gradle içindeki çakışan tüm repository tanımlarını (google, mavenCentral) temizle
+          # 1. build.gradle dosyasındaki hatalı ayarları SİL
           find . -name "build.gradle" -exec sed -i '/repositories {/,/}/d' {} +
           
-          # 2. Gradle'ı settings.gradle üzerinden çalıştır ve projedeki bozuk ayarları bypass et
+          # 2. settings.gradle dosyasını Gradle'ın tek yetkili kıl
+          # Bu komutla derlemeyi 'settings.gradle' üzerinden yapmaya zorluyoruz
           gradle assembleDebug --no-daemon --stacktrace
       
       - name: Upload APK
