@@ -11,4 +11,4 @@ workflows:
           ./gradlew assembleDebug --no-daemon
     artifacts:
       - app/build/outputs/apk/**/*.apk
-      - app/build/outputs/**/*.apk
+      - build/outputs/apk/**/*.apk
