@@ -11,15 +11,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Force Gradle Wrapper Installation
+        run: |
+          mkdir -p gradle/wrapper
+          # Gradle'ı internetten zorla indirip yapılandırıyoruz
+          curl -L https://services.gradle.org/distributions/gradle-8.1-bin.zip -o gradle.zip
+          unzip -o gradle.zip
+          mv gradle-8.1 gradle
+          # gradlew dosyasını oluştur
+          printf '#!/usr/bin/env sh\n./gradle/bin/gradle "$@"' > gradlew
+          chmod +x gradlew
 
       - name: Build APK
         run: |
-          # Hatalı repository ayarlarını temizle ve build'i zorla
-          find . -name "build.gradle" -exec sed -i 's/google()//g' {} +
-          find . -name "build.gradle" -exec sed -i 's/mavenCentral()//g' {} +
-          chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
 
       - name: Upload APK
