@@ -17,13 +17,12 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Deep Clean Gradle Conflict
+      - name: Build APK (Hard Reset)
         run: |
-          # build.gradle dosyalarındaki tüm 'repositories {' bloğunu ve içeriğini tamamen sil
-          find . -name "build.gradle" -exec sed -i '/repositories {/,/}/d' {} +
-          # settings.gradle'ı koruyup projeyi derlemeye zorla
-          chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          # Mevcut tüm gradle dosyalarını sil
+          rm -rf gradle/ gradlew gradlew.bat
+          # Gradle wrapper olmadan, doğrudan komutla build et
+          gradle assembleDebug --no-daemon --warning-mode none
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
