@@ -45,7 +45,7 @@ jobs:
           echo "android.enableJetifier=true" >> gradle.properties
           sed -i 's/FAIL_ON_PROJECT_REPOS/PREFER_PROJECT/' settings.gradle || true
           chmod +x gradlew
-          ./gradlew assembleRelease
+          ./gradlew assembleRelease -x generateReleasePythonRequirements
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
