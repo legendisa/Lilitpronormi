@@ -10,24 +10,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'temurin'
-      
-      - name: Fix and Build
+
+      - name: Final Build Attempt
         run: |
-          # 1. build.gradle dosyasındaki hatalı ayarları SİL
-          find . -name "build.gradle" -exec sed -i '/repositories {/,/}/d' {} +
+          # 1. Tüm build dosyalarını temizle
+          rm -rf app/build/
           
-          # 2. settings.gradle dosyasını Gradle'ın tek yetkili kıl
-          # Bu komutla derlemeyi 'settings.gradle' üzerinden yapmaya zorluyoruz
+          # 2. İnternet üzerinden dış kütüphane çekmeyi engelle (Offline mod)
+          # Eğer hata alırsan 'gradle assembleDebug --offline' yerine sadece 'gradle assembleDebug' dene
           gradle assembleDebug --no-daemon --stacktrace
       
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: Lilith-APK
-          path: app/build/outputs/apk/debug/*.apk
+        
