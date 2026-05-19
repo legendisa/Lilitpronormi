@@ -11,32 +11,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Locate and Move Manifest
-        run: |
-          mkdir -p app/src/main
-          find . -name "AndroidManifest.xml" -exec cp {} app/src/main/AndroidManifest.xml \;
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          java-version: 17
-          distribution: 'temurin'
-
-      - name: Download and Fix Gradle Wrapper Jar
-        run: |
-          mkdir -p gradle/wrapper
-          wget https://raw.githubusercontent.com/gradle/gradle/v8.1.0/gradle/wrapper/gradle-wrapper.jar -O gradle/wrapper/gradle-wrapper.jar
-          echo "distributionBase=GRADLE_USER_HOME" > gradle/wrapper/gradle-wrapper.properties
-          echo "distributionPath=wrapper/dists" >> gradle/wrapper/gradle-wrapper.properties
-          echo "distributionUrl=https\://services.gradle.org/distributions/gradle-8.1-bin.zip" >> gradle/wrapper/gradle-wrapper.properties
-          echo "zipStoreBase=GRADLE_USER_HOME" >> gradle/wrapper/gradle-wrapper.properties
-          echo "zipStorePath=wrapper/dists" >> gradle/wrapper/gradle-wrapper.properties
-
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
       - name: Build APK
         run: |
+          # Hatalı repository ayarlarını temizle ve build'i zorla
+          find . -name "build.gradle" -exec sed -i 's/google()//g' {} +
+          find . -name "build.gradle" -exec sed -i 's/mavenCentral()//g' {} +
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
 
