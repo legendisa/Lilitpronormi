@@ -17,9 +17,14 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Clean Build Files
+        run: |
+          # build.gradle içindeki çakışan repository tanımlarını yorum satırı yapıyoruz
+          find . -name "build.gradle" -exec sed -i 's/google()/\/\/ google()/g' {} +
+          find . -name "build.gradle" -exec sed -i 's/mavenCentral()/\/\/ mavenCentral()/g' {} +
+
       - name: Build APK with Gradle
         run: |
-          # Hazır gradle komutunu doğrudan kullanıyoruz
           gradle assembleDebug --no-daemon
 
       - name: Upload APK
