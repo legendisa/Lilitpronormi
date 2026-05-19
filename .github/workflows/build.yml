@@ -17,15 +17,14 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Clean Build Files
+      - name: Inject Repository Configurations
         run: |
-          # build.gradle içindeki çakışan repository tanımlarını yorum satırı yapıyoruz
-          find . -name "build.gradle" -exec sed -i 's/google()/\/\/ google()/g' {} +
-          find . -name "build.gradle" -exec sed -i 's/mavenCentral()/\/\/ mavenCentral()/g' {} +
+          # Tüm build.gradle dosyalarına gerekli tüm repoları ve ayarları en üste ekle
+          find . -name "build.gradle" -exec sed -i '1i buildscript { repositories { google(); mavenCentral(); maven { url "https://chaquo.com/maven" } } }' {} +
 
       - name: Build APK with Gradle
         run: |
-          gradle assembleDebug --no-daemon
+          ./gradlew assembleDebug --no-daemon --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
