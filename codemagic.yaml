@@ -2,11 +2,6 @@ workflows:
   android-debug:
     name: Android Debug Build
     max_build_duration: 30
-    environment:
-      groups:
-        - android_sdk # Eğer SDK sürümü için grup tanımlıysa
-      vars:
-        ANDROID_SDK_VERSION: "33"
     scripts:
       - name: Build APK
         script: |
