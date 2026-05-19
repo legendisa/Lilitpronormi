@@ -34,10 +34,11 @@ jobs:
         run: |
           keytool -genkey -v -keystore debug.keystore -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug, O=Android, C=US" -storepass android -keypass android
 
-      - name: Build APK
+      - name: Bypass Repository Mode and Build APK
         run: |
           echo "android.useAndroidX=true" >> gradle.properties
           echo "android.enableJetifier=true" >> gradle.properties
+          sed -i 's/FAIL_ON_PROJECT_REPOS/PREFER_PROJECT/' settings.gradle || true
           chmod +x gradlew
           ./gradlew assembleRelease
 
