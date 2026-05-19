@@ -17,11 +17,10 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Build APK (Pure Gradle)
+      - name: Build APK
         run: |
-          # 1. Projeyi tertemiz bırakıyoruz, hiçbir dosyayı silmiyoruz
-          # 2. Sadece sistemin kendi gradle komutunu kullanıyoruz (Wrapper yok)
-          gradle assembleDebug --no-daemon --stacktrace
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon --stacktrace
       
       - name: Upload APK
         uses: actions/upload-artifact@v4
