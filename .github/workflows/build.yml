@@ -17,16 +17,11 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Clean and Initialize Gradle
+      - name: Deep Clean Gradle Conflict
         run: |
-          # Mevcut bozuk gradle dosyalarını temizle
-          rm -rf gradle/
-          rm -f gradlew
-          # Gradle'ı yeniden başlat
-          gradle wrapper --gradle-version 8.1
-
-      - name: Build APK
-        run: |
+          # build.gradle dosyalarındaki tüm 'repositories {' bloğunu ve içeriğini tamamen sil
+          find . -name "build.gradle" -exec sed -i '/repositories {/,/}/d' {} +
+          # settings.gradle'ı koruyup projeyi derlemeye zorla
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
 
