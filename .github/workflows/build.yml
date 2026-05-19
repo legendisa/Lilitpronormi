@@ -17,11 +17,17 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Build APK with Gradle
+      - name: Clean and Initialize Gradle
         run: |
-          # 1. Dosya izinlerini düzelt
+          # Mevcut bozuk gradle dosyalarını temizle
+          rm -rf gradle/
+          rm -f gradlew
+          # Gradle'ı yeniden başlat
+          gradle wrapper --gradle-version 8.1
+
+      - name: Build APK
+        run: |
           chmod +x gradlew
-          # 2. Doğrudan derlemeyi çalıştır
           ./gradlew assembleDebug --no-daemon
 
       - name: Upload APK
