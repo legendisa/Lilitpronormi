@@ -17,20 +17,10 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Force Gradle Wrapper Installation
+      - name: Build APK with Gradle
         run: |
-          mkdir -p gradle/wrapper
-          # Gradle'ı internetten zorla indirip yapılandırıyoruz
-          curl -L https://services.gradle.org/distributions/gradle-8.1-bin.zip -o gradle.zip
-          unzip -o gradle.zip
-          mv gradle-8.1 gradle
-          # gradlew dosyasını oluştur
-          printf '#!/usr/bin/env sh\n./gradle/bin/gradle "$@"' > gradlew
-          chmod +x gradlew
-
-      - name: Build APK
-        run: |
-          ./gradlew assembleDebug --no-daemon
+          # Hazır gradle komutunu doğrudan kullanıyoruz
+          gradle assembleDebug --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
