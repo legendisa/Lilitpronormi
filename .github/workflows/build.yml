@@ -17,14 +17,12 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Inject Repository Configurations
-        run: |
-          # Tüm build.gradle dosyalarına gerekli tüm repoları ve ayarları en üste ekle
-          find . -name "build.gradle" -exec sed -i '1i buildscript { repositories { google(); mavenCentral(); maven { url "https://chaquo.com/maven" } } }' {} +
-
       - name: Build APK with Gradle
         run: |
-          ./gradlew assembleDebug --no-daemon --stacktrace
+          # 1. Dosya izinlerini düzelt
+          chmod +x gradlew
+          # 2. Doğrudan derlemeyi çalıştır
+          ./gradlew assembleDebug --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
