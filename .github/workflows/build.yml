@@ -17,15 +17,12 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Build APK (Bypass Repository Conflict)
+      - name: Build APK (Pure Gradle)
         run: |
-          # 1. Hatalı çatışmayı gidermek için build.gradle'daki 'repositories' bloğunu tamamen geçersiz kıl
-          find . -name "build.gradle" -exec sed -i '/repositories {/,/}/d' {} +
-          
-          # 2. İzinleri düzelt ve derlemeyi settings.gradle ile başlat
-          chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
-
+          # 1. Projeyi tertemiz bırakıyoruz, hiçbir dosyayı silmiyoruz
+          # 2. Sadece sistemin kendi gradle komutunu kullanıyoruz (Wrapper yok)
+          gradle assembleDebug --no-daemon --stacktrace
+      
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
